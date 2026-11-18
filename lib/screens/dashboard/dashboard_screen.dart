@@ -5,6 +5,7 @@ import '../../services/storage_service.dart';
 import '../../utils/currency_formatter.dart';
 import '../../widgets/completed_highlight_card.dart';
 import '../../widgets/goal_card.dart';
+import '../add_goal/add_edit_goal_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({required this.storage, super.key});
@@ -88,9 +89,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _showAddGoal() async {
-    final created = await showDialog<bool>(
-      context: context,
-      builder: (_) => _AddGoalDialog(storage: widget.storage),
+    final created = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddEditGoalScreen(storage: widget.storage),
+      ),
     );
     if (!mounted || created != true) return;
     await _loadGoals();
@@ -101,25 +104,61 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _openGoalDetail(GoalModel goal) async {
+    // Titik integrasi untuk Adit saat GoalDetailScreen sudah siap:
+    // final changed = await Navigator.push<bool>(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (_) => GoalDetailScreen(storage: widget.storage, goalId: goal.id),
+    //   ),
+    // );
+    // if (changed == true && mounted) await _loadGoals();
+  }
+
   @override
   Widget build(BuildContext context) {
     final activeGoals = _activeGoals;
     final completedGoals = _completedGoals;
     final displayedGoals = _tabIndex == 0 ? activeGoals : completedGoals;
-    final total = activeGoals.fold<int>(
+
+    final activeTotal = activeGoals.fold<int>(
       0,
       (sum, goal) => sum + goal.currentAmount,
     );
+    final completedTotal = completedGoals.fold<int>(
+      0,
+      (sum, goal) => sum + goal.currentAmount,
+    );
+
     final highlights = activeGoals
         .where((goal) => goal.isReadyToComplete)
         .toList();
-    final regularGoals = _tabIndex == 0
-        ? activeGoals.where((goal) => !goal.isReadyToComplete)
-        : completedGoals;
+    final inProgressGoals = activeGoals
+        .where((goal) => !goal.isReadyToComplete)
+        .toList();
+    final regularGoals = _tabIndex == 0 ? inProgressGoals : completedGoals;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nabung.in'),
+        title: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE5F5EF),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.savings_rounded,
+                color: Color(0xFF16856B),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text('Nabung.in'),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: 'Muat ulang',
@@ -151,7 +190,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 20),
-                    _SummaryCard(total: total, count: activeGoals.length),
+                    _SummaryCard(
+                      total: _tabIndex == 0 ? activeTotal : completedTotal,
+                      readyCount: highlights.length,
+                      inProgressCount: inProgressGoals.length,
+                      completedCount: completedGoals.length,
+                      isCompletedTab: _tabIndex == 1,
+                    ),
                     const SizedBox(height: 24),
                     SegmentedButton<int>(
                       segments: [
@@ -181,6 +226,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: CompletedHighlightCard(
                             goal: goal,
                             onComplete: () => _completeGoal(goal),
+                            onTap: () => _openGoalDetail(goal),
                           ),
                         ),
                       ),
@@ -202,7 +248,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ...regularGoals.map(
                         (goal) => Padding(
                           padding: const EdgeInsets.only(bottom: 12),
-                          child: GoalCard(goal: goal),
+                          child: GoalCard(
+                            goal: goal,
+                            onTap: () => _openGoalDetail(goal),
+                          ),
                         ),
                       ),
                   ],
@@ -213,114 +262,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-class _AddGoalDialog extends StatefulWidget {
-  const _AddGoalDialog({required this.storage});
-
-  final StorageService storage;
-
-  @override
-  State<_AddGoalDialog> createState() => _AddGoalDialogState();
-}
-
-class _AddGoalDialogState extends State<_AddGoalDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _amountController = TextEditingController();
-  bool _isSaving = false;
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _amountController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    if (_isSaving || !_formKey.currentState!.validate()) return;
-    setState(() => _isSaving = true);
-    final now = DateTime.now().toIso8601String();
-    final goal = GoalModel(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      name: _nameController.text.trim(),
-      targetAmount: int.parse(_amountController.text),
-      currentAmount: 0,
-      savingLocation: 'cash',
-      status: 'active',
-      createdAt: now,
-      updatedAt: now,
-    );
-    final saved = await widget.storage.addGoal(goal);
-    if (!mounted) return;
-    Navigator.pop(context, saved);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final maxHeight = MediaQuery.sizeOf(context).height * .55;
-    return AlertDialog(
-      title: const Text('Buat target baru'),
-      content: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxHeight),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  autofocus: true,
-                  textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(labelText: 'Nama target'),
-                  validator: (value) => value == null || value.trim().isEmpty
-                      ? 'Wajib diisi'
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _amountController,
-                  keyboardType: TextInputType.number,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) => _save(),
-                  decoration: const InputDecoration(
-                    labelText: 'Nominal tujuan',
-                  ),
-                  validator: (value) {
-                    final amount = int.tryParse(value ?? '');
-                    return amount == null || amount <= 0
-                        ? 'Masukkan nominal valid'
-                        : null;
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _isSaving ? null : () => Navigator.pop(context, false),
-          child: const Text('Batal'),
-        ),
-        FilledButton(
-          onPressed: _isSaving ? null : _save,
-          child: _isSaving
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Simpan target'),
-        ),
-      ],
-    );
-  }
-}
-
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.total, required this.count});
+  const _SummaryCard({
+    required this.total,
+    required this.readyCount,
+    required this.inProgressCount,
+    required this.completedCount,
+    required this.isCompletedTab,
+  });
+
   final int total;
-  final int count;
+  final int readyCount;
+  final int inProgressCount;
+  final int completedCount;
+  final bool isCompletedTab;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -340,9 +295,12 @@ class _SummaryCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              'Total Tabungan Aktif',
-              style: Theme.of(context).textTheme.bodyMedium
-                  ?.copyWith(color: Colors.white70),
+              isCompletedTab
+                  ? 'Total Target Terealisasi'
+                  : 'Total Tabungan Aktif',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.white70,
+              ),
             ),
           ],
         ),
@@ -352,15 +310,23 @@ class _SummaryCard extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: Text(
             formatRupiah(total),
-            style: Theme.of(context).textTheme.displaySmall
-                ?.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         Text(
-          'Dari $count target yang sedang berjalan',
-          style: Theme.of(context).textTheme.bodySmall
-              ?.copyWith(color: Colors.white70),
+          isCompletedTab
+              ? 'Total dari $completedCount target yang telah diselesaikan'
+              : '$readyCount target siap dibeli • $inProgressCount target sedang berjalan',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Colors.white.withAlpha(230),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     ),
