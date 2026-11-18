@@ -1,329 +1,150 @@
 # DESIGN.md
-# Goal-Based Savings Tracker — Design System & UI Scope Reynaldo
+# Nabung.in — Design System & Spesifikasi UI/UX (Scope Reynaldo & Argo)
 
 ## 1. Arah Desain
 
-Goal-Based Savings Tracker dirancang sebagai aplikasi pencatat tabungan yang terasa ringan, modern, optimistis, dan mudah dipahami. Antarmuka harus membuat pengguna dapat melihat tiga hal dengan cepat:
+**Nabung.in** dirancang sebagai aplikasi pencatat tabungan personal yang ringan, modern, optimistis, dan mudah dipahami[cite: 14]. Antarmuka memprioritaskan keterbacaan nominal Rupiah, hierarki informasi yang jelas, sudut komponen membulat (*rounded*) yang konsisten, serta stabilitas tata letak pada berbagai ukuran layar ponsel[cite: 14].
 
-1. Berapa total uang yang sedang ditabung.
-2. Target mana yang sedang dikejar.
-3. Target mana yang sudah mencapai 100% dan siap diselesaikan.
+Pengguna harus dapat menangkap tiga informasi utama dalam hitungan detik[cite: 14]:
+1. Berapa total akumulasi uang yang sedang ditabung[cite: 14].
+2. Target mana saja yang sedang berjalan beserta persentase progresnya[cite: 14].
+3. Target mana yang sudah mencapai **100%** dan siap dikonfirmasi selesai[cite: 14].
 
-Desain mengutamakan hierarki informasi, keterbacaan nominal Rupiah, komponen rounded yang konsisten, dan interaksi yang jelas. Hindari tampilan yang terlalu ramai, dekorasi berlebihan, atau penggunaan warna yang tidak memiliki fungsi.
+**Cakupan dokumen:** Mengatur fondasi visual global, Dashboard, komponen kartu bersama, serta spesifikasi antarmuka halaman **Tambah/Edit Target** dan **Kalkulator Rencana 2 Arah** (Scope Reynaldo & Argo), sekaligus menyediakan panduan standar antarmuka untuk integrasi halaman **Detail Target & Transaksi** (Scope Adit)[cite: 14].
 
-**Cakupan dokumen:** panduan fondasi visual, tema global, Dashboard, komponen bersama, dan integrasi tampilan yang menjadi koordinasi Reynaldo. Desain detail halaman Tambah/Edit, kalkulator, Detail Target, form transaksi, dan riwayat dikerjakan oleh Argo dan Adit dengan mengikuti design token dan aturan bersama di sini.
+---
 
 ## 2. Prinsip UI/UX
 
-- **Clarity first:** nominal, progres, dan status harus mudah dibaca.
-- **One primary action:** setiap area memiliki satu aksi utama yang paling menonjol.
-- **Consistent components:** radius, jarak, warna, dan gaya tombol konsisten.
-- **Feedback:** aksi simpan atau penyelesaian memberikan SnackBar atau dialog yang sesuai.
-- **Accessible contrast:** teks tetap terbaca di atas latar belakang.
-- **Responsive:** gunakan layout fleksibel dan hindari ukuran lebar yang dipatok untuk satu perangkat.
-- **Calm and positive:** nuansa segar dan suportif, bukan kompetitif atau menekan pengguna.
+- **Clarity first:** Nominal, persentase progres, dan label status harus terbaca jelas tanpa terpotong[cite: 14].
+- **One primary action:** Setiap layar memiliki satu tombol aksi utama (*Call to Action*) yang paling menonjol[cite: 14].
+- **Consistent components:** Radius, jarak antar-elemen (*spacing*), token warna, dan gaya input mengikuti `ThemeData` global di `main.dart`[cite: 14].
+- **Clear feedback:** Setiap aksi penyimpanan, pembaruan, atau penyelesaian target menampilkan `SnackBar` atau dialog konfirmasi yang informatif[cite: 14].
+- **Responsive & anti-overflow:** Menggunakan `SafeArea`, `Expanded`, `Flexible`, `Wrap`, dan `FittedBox` agar nominal besar tidak memicu *RenderFlex overflow*[cite: 14].
+- **Stable viewport physics:** Mematikan efek melar elastis (*stretch overscroll* Android 12+) secara global agar komponen kartu tetap kokoh saat ditarik mentok atas/bawah namun tetap dapat di-*scroll* dengan lancar.
 
-## 3. Visual Direction
+---
 
-<details>
-<summary>Karakter visual</summary>
+## 3. Karakter Visual & Larangan Desain
 
-- Modern personal finance utility.
-- Clean, bright, friendly.
-- Dominasi latar terang dengan aksen hijau/teal.
-- Kartu putih dengan border tipis atau elevation sangat halus.
-- Rounded corner konsisten.
-- Progress bar sederhana dan animasi singkat.
-- Ikon menggunakan satu keluarga ikon yang konsisten.
-</details>
+- **Gaya visual:** *Modern personal finance utility* — cerah, bersih, bersahabat, dengan dominasi latar terang (`#F6F8F7`) dan aksen hijau-teal (`#16856B`)[cite: 14].
+- **Permukaan (*Surface*):** Kartu putih (`#FFFFFF`) dengan garis tepi tipis (`1 px` `#E4EAE7`)[cite: 14].
+- **Ikonografi:** Menggunakan keluarga **Material Icons** (`Icons.*`) secara konsisten di seluruh aplikasi[cite: 14].
 
-Jangan menggunakan:
-- Gradient mencolok pada setiap kartu.
-- Shadow gelap dan tebal.
-- Terlalu banyak warna aksen dalam satu layar.
-- Font dekoratif untuk nominal atau informasi utama.
-- Animasi panjang yang memperlambat interaksi.
-- Emoji sebagai pengganti ikon antarmuka utama.
+**Larangan desain:**
+- Tidak menggunakan **emoji** (`🎯`, `🐷`, `🎉`, dll.) sebagai pengganti ikon antarmuka utama[cite: 14].
+- Tidak menggunakan gradasi warna mencolok pada setiap kartu atau bayangan hitam yang terlalu pekat[cite: 14].
+- Tidak menggunakan font dekoratif untuk nominal angka maupun informasi utama[cite: 14].
+- Tidak membuat palet warna atau ukuran radius baru di luar token yang disepakati[cite: 14].
 
-## 4. Color Palette
+---
 
-Gunakan palet berikut sebagai token awal. Implementasi akhir dapat disesuaikan bersama tim, tetapi nama token dan maknanya harus tetap konsisten.
+## 4. Color Palette (Design Tokens)
 
-| Token | Hex | Fungsi |
-|---|---|---|
-| `primary` | `#16856B` | Tombol utama, progress, elemen aktif |
-| `primaryDark` | `#116B56` | State pressed dan aksen kuat |
-| `primarySoft` | `#E5F5EF` | Latar highlight positif |
-| `secondary` | `#3B82A0` | Aksen sekunder dan informasi |
-| `background` | `#F6F8F7` | Latar halaman |
-| `surface` | `#FFFFFF` | Kartu dan modal |
-| `textPrimary` | `#17211E` | Judul dan teks utama |
-| `textSecondary` | `#687570` | Keterangan dan label |
-| `border` | `#E4EAE7` | Garis pembatas |
-| `success` | `#16856B` | Target tercapai dan aksi sukses |
-| `warning` | `#D99127` | Peringatan yang membutuhkan perhatian |
-| `danger` | `#D9534F` | Penarikan atau aksi berisiko |
-| `disabled` | `#AAB5B0` | Kontrol nonaktif |
+Seluruh layar wajib merujuk pada token warna berikut[cite: 14]:
 
-Aturan pemakaian:
-- `primary` digunakan untuk CTA dan indikator progres, bukan untuk semua teks.
-- `success` digunakan untuk status tercapai, bukan sebagai dekorasi.
-- `danger` hanya untuk aksi penarikan atau tindakan destruktif.
-- Pastikan rasio kontras teks memadai, terutama teks kecil di atas `primarySoft`.
+| Token | Hex | Fungsi Utama |
+| :--- | :--- | :--- |
+| `primary` | `#16856B` | Tombol utama, *progress bar*, indikator tab aktif, dan aksen merek **Nabung.in**[cite: 14] |
+| `primaryDark` | `#116B56` | State ditekan (*pressed*) dan teks kontras tinggi di atas `primarySoft`[cite: 14] |
+| `primarySoft` | `#E5F5EF` | Latar kartu *highlight* target tercapai 100%, latar *progress bar*, dan wadah ikon[cite: 14] |
+| `secondary` | `#3B82A0` | Aksen informasi sekunder dan label wadah **Rekening Bank**[cite: 14] |
+| `background` | `#F6F8F7` | Latar belakang utama seluruh halaman (`Scaffold`)[cite: 14] |
+| `surface` | `#FFFFFF` | Latar kartu target, form, dan dialog konfirmasi[cite: 14] |
+| `textPrimary` | `#17211E` | Judul halaman, nama target, dan nominal utama[cite: 14] |
+| `textSecondary` | `#687570` | Sub-judul, label keterangan, dan tanggal[cite: 14] |
+| `border` | `#E4EAE7` | Garis tepi kartu, pembatas tab, dan *border* kolom input[cite: 14] |
+| `success` | `#16856B` | Status target tercapai dan transaksi setoran masuk[cite: 14] |
+| `warning` | `#D99127` | Penanda informasi kalkulator dan label wadah **E-Wallet**[cite: 14] |
+| `danger` | `#D9534F` | Khusus aksi penarikan dana darurat dan penghapusan data[cite: 14] |
+| `disabled` | `#AAB5B0` | Tombol atau kontrol dalam kondisi nonaktif[cite: 14] |
 
-## 5. Typography
+### Token Warna Label Wadah Simpanan (`savingLocation`)
 
-Gunakan font sans-serif yang bersih dan tersedia secara konsisten. Rekomendasi: **Inter** jika font asset ditambahkan ke proyek; jika belum, gunakan font default Android/Flutter.
+| Nilai Model (`savingLocation`) | Label UI | Warna Aksen |
+| :--- | :--- | :--- |
+| `cash` | `Cash` | `#16856B` (*Primary Teal*)[cite: 14] |
+| `e_wallet` | `E-Wallet` | `#D99127` (*Amber Warning*)[cite: 14] |
+| `bank_account` | `Rekening Bank` | `#3B82A0` (*Secondary Blue*)[cite: 14] |
+| `deposit` | `Deposito` | `#7C5CBF` (*Muted Purple*)[cite: 14] |
+
+---
+
+## 5. Typography & Aturan Format Nominal
+
+Menggunakan font sans-serif sistem yang bersih dan mudah dibaca[cite: 14]:
 
 | Style | Ukuran | Weight | Penggunaan |
-|---|---:|---|---|
-| Display | 28–32 px | Bold | Total saldo utama |
-| H1 | 24 px | Bold | Judul halaman |
-| H2 | 20 px | SemiBold | Judul section |
-| H3 | 16–18 px | SemiBold | Nama kartu target |
-| Body | 14–16 px | Regular | Informasi utama |
-| Caption | 12 px | Regular | Label, tanggal, helper |
-| Button | 14–16 px | SemiBold | Label tombol |
-| Amount | 20–28 px | Bold | Nominal penting |
+| :--- | ---: | :--- | :--- |
+| Display / Hero Amount | 28–32 px | Bold (`w800`) | Nominal total tabungan pada kartu ringkasan Dashboard[cite: 14] |
+| H1 / AppBar Title | 22–24 px | Bold (`w800`) | Judul aplikasi **Nabung.in** dan judul utama layar[cite: 14] |
+| H2 / Section Title | 18–20 px | SemiBold (`w700`) | Judul bagian (*Siap dirayakan*, *Target lainnya*, *Rencana Menabung*)[cite: 14] |
+| H3 / Card Title | 16–18 px | SemiBold (`w700`) | Nama target pada kartu dan judul dialog[cite: 14] |
+| Body | 14–16 px | Regular (`w400`) | Deskripsi, catatan transaksi, dan teks form[cite: 14] |
+| Caption | 12–13 px | Regular/Medium | Label wadah simpanan, persentase progres, tanggal, dan sub-teks ringkasan[cite: 14] |
+| Button | 14–16 px | SemiBold (`w700`) | Label pada tombol aksi[cite: 14] |
 
-Ketentuan:
-- Gunakan `tabular figures` jika font mendukung agar digit nominal sejajar.
-- Nominal utama tidak boleh terpotong.
-- Hindari penggunaan terlalu banyak ukuran font dalam satu layar.
-- Gunakan line-height yang nyaman untuk teks penjelasan.
+### Aturan Penampilan Nominal Rupiah
+- **Nominal $< 1\text{ Triliun}$ ($< 1.000.000.000.000$):** Ditampilkan lengkap dengan pemisah ribuan titik, misalnya `Rp 15.000.000` atau `Rp 246.959.396.312`[cite: 14].
+- **Nominal $\ge 1\text{ Triliun}$ ($\ge 1.000.000.000.000$):** Otomatis diringkas menjadi format tiga angka di belakang koma dengan koma desimal Indonesia, misalnya `Rp 1,250 Triliun` atau `Rp 5,609 Triliun`, agar tata letak kartu tetap proporsional di layar ponsel berukuran kecil.
+- **Proteksi Overflow:** Nominal utama wajib dibungkus `FittedBox(fit: BoxFit.scaleDown)` agar tidak pernah memicu garis kuning-hitam *overflow*[cite: 14].
 
-## 6. Spacing, Radius, dan Elevation
+---
 
-### Spacing scale
+## 6. Spacing, Radius, dan Perilaku Scroll
 
-Gunakan kelipatan 4 atau 8 agar ritme layout konsisten.
+### Skala Jarak (*Spacing*)
+Menggunakan kelipatan `4 px` (`4`, `8`, `12`, `16`, `20`, `24`, `32`) untuk menjaga ritme tata letak antar-komponen[cite: 14].
 
-| Token | Nilai |
-|---|---:|
-| `space4` | 4 px |
-| `space8` | 8 px |
-| `space12` | 12 px |
-| `space16` | 16 px |
-| `space20` | 20 px |
-| `space24` | 24 px |
-| `space32` | 32 px |
-
-### Radius
-
+### Skala Radius (*Border Radius*)
 | Token | Nilai | Penggunaan |
-|---|---:|---|
-| `radiusSmall` | 10 px | Chip dan label |
-| `radiusMedium` | 14 px | Input dan tombol |
-| `radiusLarge` | 18 px | Kartu |
-| `radiusXLarge` | 24 px | Kartu ringkasan utama |
-| `radiusFull` | 999 px | Pill dan progress |
+| :--- | ---: | :--- |
+| `radiusSmall` | `10 px` | Badge wadah simpanan dan chip pilihan[cite: 14] |
+| `radiusMedium` | `14 px` | Kolom input (`TextFormField`), tombol (`FilledButton`/`OutlinedButton`), dan kotak hasil kalkulator[cite: 14] |
+| `radiusLarge` | `18 px` | Kartu target reguler (`GoalCard`)[cite: 14] |
+| `radiusHighlight` | `20 px` | Kartu *highlight* target tercapai (`CompletedHighlightCard`)[cite: 14] |
+| `radiusXLarge` | `24 px` | Kartu ringkasan total tabungan utama (`_SummaryCard`)[cite: 14] |
+| `radiusFull` | `999 px` | *Progress bar* dan indikator *pill*[cite: 14] |
 
-### Elevation dan border
+### Perilaku Scroll Global
+- Aplikasi menerapkan `_FixedClampingScrollBehavior` pada `MaterialApp` menggunakan `ClampingScrollPhysics()` tanpa efek peregangan elastis (*stretch indicator*).
+- Halaman tetap dapat di-*scroll* dengan lancar saat daftar target atau riwayat melebihi tinggi layar, namun elemen kartu tidak melar secara visual ketika ditarik di batas atas maupun bawah.
 
-- Utamakan border `#E4EAE7` satu pixel untuk memisahkan surface.
-- Gunakan shadow tipis hanya pada kartu yang perlu terlihat terangkat.
-- Hindari shadow besar dan blur berlebihan.
-- Jangan mencampur banyak gaya border dalam satu layar.
+---
 
-## 7. Global Theme dan Komponen Dasar
+## 7. Spesifikasi Layar & Komponen (Scope Reynaldo & Argo)
 
-Reynaldo menyiapkan `ThemeData` global di `main.dart`.
+### 7.1 Dashboard (`DashboardScreen`)
+1. **Header:** Menampilkan ikon `Icons.savings_rounded` dalam wadah `#E5F5EF` beserta judul **Nabung.in**[cite: 14].
+2. **Kartu Ringkasan Total Tabungan (`_SummaryCard`):**
+   - Latar `#16856B`, radius `24 px`, padding `22 px`[cite: 14].
+   - Menampilkan label `Total Tabungan Aktif`, nominal total dengan `FittedBox`, dan sub-teks status dinamis di bagian bawah:
+     - Saat tab **Sedang Berjalan** aktif: `"X target siap dibeli • Y target sedang berjalan"`.
+     - Saat tab **Selesai** aktif: `"Total dari Z target yang telah diselesaikan"`.
+3. **Tab Status:** `SegmentedButton` untuk beralih antara **Berjalan** dan **Selesai** beserta jumlah item masing-masing[cite: 14].
+4. **Area Highlight 100% (`CompletedHighlightCard`):** Muncul paling atas ketika terdapat target aktif dengan `currentAmount >= targetAmount`, berlatar `#E5F5EF` dengan garis tepi `#B7E2D3`, ikon `Icons.check_circle`, dan tombol `Tandai Selesai`[cite: 14].
+5. **Daftar Kartu Target (`GoalCard`):** Kartu putih beradius `18 px` yang menampilkan nama target, *badge* wadah simpanan, informasi rencana cicilan (jika tersedia), nominal terkumpul vs target, persentase, *progress bar* beranimasi (`350 ms`), dan tanggal target[cite: 14]. Kedua kartu mendukung interaksi ketuk (`onTap`) untuk membuka halaman Detail[cite: 14].
 
-Konfigurasi yang perlu diseragamkan:
-- `ColorScheme` berbasis warna primer.
-- `Scaffold` background menggunakan `background`.
-- AppBar dengan surface terang dan judul yang jelas.
-- Filled button untuk aksi utama.
-- Outlined/text button untuk aksi sekunder.
-- Input decoration dengan border dan radius konsisten.
-- SnackBar dengan pesan singkat dan mudah dipahami.
-- Dialog konfirmasi dengan aksi batal dan lanjut yang jelas.
+### 7.2 Halaman Tambah & Edit Target (`AddEditGoalScreen` — Scope Argo)
+1. **Header & Konteks Mode:** Menggunakan `AppBar` standar tema dengan judul **`Target baru`** (saat membuat baru) atau **`Edit target`** (saat memperbarui target yang sudah ada).
+2. **Input Utama:**
+   - **Nama Target:** `TextFormField` pertama dengan validasi wajib diisi.
+   - **Nominal Tujuan (Rp):** `TextFormField` kedua dengan format pemisah ribuan otomatis saat diketik dan validasi nilai $> 0$.
+   - **Wadah Simpanan:** Pilihan `ChoiceChip` untuk `Cash`, `E-Wallet`, `Rekening Bank`, dan `Deposito`[cite: 14].
+3. **Kalkulator Rencana 2 Arah (*Selalu Tampil & Aktif Default*):**
+   - Menampilkan `SegmentedButton` pemilih strategi: **`Atur Nominal Cicilan`** (aktif *default* saat halaman dibuka) vs **`Atur Tanggal Target`**.
+   - Pemilih frekuensi menabung: **`Harian`**, **`Mingguan`**, dan **`Bulanan`** (*default*).
+   - **Kartu Hasil Perhitungan *Real-Time*:** Kotak berlatar `#E5F5EF` dengan garis tepi `#B7E2D3` dan ikon `Icons.calculate_outlined` yang langsung menampilkan:
+     - *Mode Nominal Cicilan:* Jumlah periode menabung dan perkiraan tanggal target tercapai.
+     - *Mode Tanggal Target:* Nominal wajib yang harus disisihkan setiap periode hingga tanggal target.
+4. **Tombol Aksi Utama:** `FilledButton` lebar penuh di bagian bawah dengan label **`Simpan target`** (untuk mode tambah) atau **`Simpan perubahan`** (untuk mode edit).
 
-Komponen harus menggunakan tema global jika memungkinkan. Hindari hardcode warna berbeda-beda di setiap screen.
+---
 
-## 8. Dashboard — Scope Reynaldo
+## 8. Panduan Antarmuka Integrasi (Scope Adit)
 
-### 8.1 Struktur informasi
-
-Urutan konten Dashboard:
-
-1. Header aplikasi dan sapaan/judul ringkas.
-2. Kartu ringkasan total tabungan aktif.
-3. Area highlight target tercapai (jika ada).
-4. Tab `Sedang Berjalan` dan `Selesai`.
-5. Daftar kartu target sesuai tab.
-6. Empty state jika daftar pada tab terpilih kosong.
-
-### 8.2 Kartu ringkasan total tabungan
-
-Isi:
-- Label `Total Tabungan Aktif`.
-- Nominal total dalam format Rupiah.
-- Keterangan singkat seperti `Dari seluruh target yang sedang berjalan`.
-
-Gaya:
-- Surface putih atau `primary` dengan kontras teks yang kuat.
-- Nominal menjadi elemen paling dominan.
-- Radius 24 px.
-- Padding 20–24 px.
-- Tidak menambahkan grafik yang tidak diperlukan.
-
-Definisi nilai:
-- Hanya menjumlahkan `currentAmount` dari target `active`.
-- Target yang telah mencapai 100% tetapi belum dikonfirmasi selesai tetap masuk total aktif.
-
-### 8.3 Tab status
-
-- Dua pilihan: `Sedang Berjalan` dan `Selesai`.
-- Tab aktif memakai warna primer dan indikator yang jelas.
-- Tab nonaktif memakai teks sekunder.
-- Jumlah item boleh ditampilkan sebagai count kecil jika tidak membuat tampilan ramai.
-- Perubahan tab tidak boleh menghapus state data.
-
-### 8.4 Kartu target reguler
-
-Informasi minimum:
-- Nama target.
-- Label wadah penyimpanan.
-- Saldo terkumpul.
-- Nominal tujuan.
-- Persentase/progress bar.
-
-Gaya:
-- Surface putih.
-- Border tipis.
-- Radius 18 px.
-- Padding 16 px.
-- Progress bar rounded.
-- Teks nominal dan tujuan ditata agar mudah dibandingkan.
-
-### 8.5 Kartu highlight 100%
-
-Kartu ini hanya muncul untuk target berstatus `active` dengan `currentAmount >= targetAmount`.
-
-Informasi:
-- Nama target.
-- Penanda `Target tercapai`.
-- Nominal terkumpul dan nominal tujuan.
-- Progress visual 100%.
-- Tombol konfirmasi, misalnya `Tandai Selesai`.
-
-Gaya:
-- Latar `primarySoft`.
-- Aksen `primary` atau `success`.
-- Border dapat menggunakan warna primer dengan intensitas rendah.
-- Gunakan ikon centang atau trophy sederhana.
-- Hindari confetti atau animasi berlebihan.
-
-Perilaku:
-- Kartu berada di atas daftar target aktif reguler.
-- Highlight tetap terlihat sampai pengguna mengonfirmasi penyelesaian.
-- Setelah konfirmasi berhasil, kartu hilang dari daftar aktif dan target masuk tab Selesai.
-- Dialog konfirmasi ditampilkan sebelum perubahan status.
-
-### 8.6 Empty state
-
-Jika belum ada target:
-- Gunakan ilustrasi/ikon sederhana atau bentuk dekoratif minimal.
-- Judul: `Belum ada target tabungan`.
-- Deskripsi: `Buat target pertamamu untuk mulai mencatat progres menabung.`
-- Sediakan CTA menuju halaman Tambah Target yang disediakan Argo.
-
-Jika tab Selesai kosong:
-- Tampilkan pesan `Belum ada target yang selesai.`
-- Jangan menampilkan area kosong yang terlalu tinggi.
-
-## 9. Motion dan Feedback
-
-Animasi hanya digunakan untuk memperjelas perubahan.
-
-| Interaksi | Rekomendasi |
-|---|---|
-| Progress berubah | Animated progress 250–400 ms |
-| Perpindahan tab | Transisi ringan 150–250 ms |
-| Kartu muncul/hilang | Fade/size transition singkat |
-| Dialog konfirmasi | Animasi default Material |
-| Penyimpanan berhasil | SnackBar singkat |
-| Penyimpanan gagal | SnackBar dengan pesan yang jelas |
-
-Aturan:
-- Hormati performa perangkat Android kelas menengah.
-- Jangan menjalankan animasi berulang tanpa kebutuhan.
-- Jangan mengandalkan warna/animasi saja untuk menyampaikan status.
-- Semua aksi penting tetap harus memberikan feedback tekstual.
-
-Contoh pesan:
-- `Target berhasil ditandai selesai.`
-- `Data gagal disimpan. Silakan coba lagi.`
-- `Target ini sudah mencapai nominal tujuan.`
-
-## 10. Iconography
-
-Gunakan Material Symbols atau Material Icons secara konsisten.
-
-Rekomendasi penggunaan:
-- Wallet / account balance untuk total tabungan.
-- Flag / target untuk target.
-- Check circle untuk target tercapai.
-- Calendar untuk tanggal.
-- Cash / savings untuk wadah simpanan.
-- Arrow up/down untuk transaksi jika digunakan modul anggota lain.
-
-Jangan mencampur ikon outline dan filled secara acak dalam satu kelompok komponen.
-
-## 11. Responsive Layout
-
-- Gunakan `SafeArea` pada halaman utama.
-- Gunakan `SingleChildScrollView` atau `ListView` untuk konten yang dapat memanjang.
-- Gunakan `Expanded`, `Flexible`, dan `Wrap` ketika diperlukan.
-- Hindari lebar/tinggi tetap untuk komponen yang berisi teks dinamis.
-- Nominal panjang harus dapat mengecil atau membungkus secara wajar tanpa overflow.
-- Pastikan tab, tombol, dan kartu tetap nyaman disentuh.
-- Uji setidaknya pada lebar layar kecil dan layar Android umum.
-
-## 12. Accessibility dan Usability
-
-- Ukuran area sentuh tombol idealnya minimal 48 × 48 logical pixels.
-- Jangan menggunakan warna sebagai satu-satunya pembeda status.
-- Berikan label teks pada ikon aksi yang tidak umum.
-- Pastikan teks sekunder masih terbaca.
-- Dialog konfirmasi harus menjelaskan dampak aksi.
-- Gunakan format Rupiah konsisten pada semua halaman.
-- Tanggal ditampilkan dalam bahasa Indonesia yang mudah dipahami.
-
-## 13. Kontrak Visual Antaranggota
-
-### Reynaldo
-- Menetapkan `ThemeData`, warna, typography, spacing, radius, dan gaya feedback.
-- Menyediakan helper format Rupiah/tanggal/progres.
-- Mengembangkan Dashboard dan state status target.
-- Mengkoordinasikan komponen kartu dan navigasi agar konsisten.
-
-### Argo
-- Mengikuti global theme untuk halaman Tambah/Edit.
-- Menggunakan style input, tombol, dan dialog yang sama.
-- Kalkulator harus menampilkan hasil dengan hierarki nominal dan tanggal yang jelas.
-- Tidak membuat palet warna atau radius baru tanpa kesepakatan.
-
-### Adit
-- Mengikuti global theme untuk Detail Target dan transaksi.
-- Setor dan Tarik harus memiliki pembeda visual yang jelas.
-- Aksi Tarik menggunakan warna danger secara terbatas.
-- Riwayat transaksi menggunakan format tanggal dan Rupiah dari helper bersama.
-
-## 14. Checklist Implementasi Design
-
-- [ ] ThemeData global dibuat di `main.dart`.
-- [ ] ColorScheme dan token warna konsisten.
-- [ ] Typography dan hierarki nominal ditetapkan.
-- [ ] Spacing dan radius digunakan konsisten.
-- [ ] Dashboard mengikuti urutan informasi yang ditetapkan.
-- [ ] Kartu ringkasan total tabungan mudah dibaca.
-- [ ] Tab Sedang Berjalan dan Selesai memiliki state aktif yang jelas.
-- [ ] Kartu target menampilkan progres dan nominal.
-- [ ] Kartu highlight 100% memiliki penanda dan CTA.
-- [ ] Dialog konfirmasi penyelesaian tersedia.
-- [ ] SnackBar sukses/gagal konsisten.
-- [ ] Empty state tersedia untuk kedua tab.
-- [ ] Layout diuji pada layar kecil tanpa overflow.
-- [ ] Halaman Argo dan Adit menggunakan tema dan helper bersama.
+Untuk menjaga konsistensi visual ketika modul **Detail Target & Riwayat Transaksi** dikembangkan oleh Adit[cite: 14]:
+- **Halaman Detail (`GoalDetailScreen`):** Menggunakan `Scaffold` berlatar `#F6F8F7`, kartu ringkasan progres beradius `18 px`, dan tata letak 2 kolom sejajar untuk menampilkan **Terkumpul** dan **Sisa Kekurangan** agar aman dari *overflow* pada nominal besar[cite: 14].
+- **Tombol Setor & Tarik:** Tombol **Setor Nabung** menggunakan `FilledButton` (`#16856B`), sedangkan tombol **Tarik Dana** menggunakan aksen `danger` (`#D9534F`) secara terbatas[cite: 14].
+- **Pop-up Transaksi (`TransactionSheet`):** Menggunakan `showModalBottomSheet` dengan sudut atas membulat `24 px` dan menyertakan tombol *chip* **Isi Cepat (Sesuai Rencana)** apabila `goal.savingAmount != null`[cite: 14].
+- **Riwayat Aktivitas:** Menggunakan ikon `Icons.arrow_upward_rounded` (`#16856B`) untuk setoran dan `Icons.arrow_downward_rounded` (`#D9534F`) untuk penarikan, dengan format tanggal dan Rupiah dari `currency_formatter.dart`[cite: 14].
